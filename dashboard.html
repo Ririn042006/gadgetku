@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Admin — GadgetKu Store</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+:root{--ink:#24213b;--muted:#817e95;--purple:#7657e8;--pink:#ff83b5;--pale:#f5f1ff;--line:#eeeaf6;--white:#fff;--shadow:0 18px 50px rgba(68,45,120,.10);--dark:#28213e;--green:#2f9e73;--amber:#d99627;--red:#e5677f}
+*{box-sizing:border-box}body{margin:0;background:#f8f6fc;color:var(--ink);font-family:'DM Sans',sans-serif}button,input,select{font:inherit}button{cursor:pointer;border:0}a{color:inherit}
+.primary{background:var(--purple);color:#fff;border-radius:12px;padding:12px 20px;font-weight:800;font-size:13px;box-shadow:0 10px 22px #7657e83d}.primary:hover{background:#6041d4}
+.ghost{background:#f3f0f8;color:#5b5372;border-radius:11px;padding:10px 15px;font-weight:800;font-size:12px}.ghost:hover{background:#eae5f6}
+.danger{background:#fdeef1;color:#c14663;border-radius:10px;padding:8px 11px;font-weight:800;font-size:11px}.danger:hover{background:#f9dde4}
+/* ---------- LOGIN ---------- */
+.login{min-height:100vh;display:grid;place-items:center;padding:26px;background:radial-gradient(900px 500px at 12% 0%,#eee8ff 0%,#fdf1f6 45%,#f8f6fc 100%)}
+.login-card{width:min(420px,100%);background:#fff;border:1px solid var(--line);border-radius:26px;padding:34px 32px;box-shadow:var(--shadow)}
+.login-card .logo{font-family:'Plus Jakarta Sans';font-size:23px;font-weight:800;letter-spacing:-1px}.login-card .logo span{color:var(--purple)}.login-card .logo small{display:block;font:600 9px 'DM Sans';letter-spacing:2.5px;color:#a09bb2;margin-top:-2px}
+.login-card h1{font:800 25px 'Plus Jakarta Sans';letter-spacing:-.8px;margin:24px 0 6px}
+.login-card p.sub{margin:0 0 22px;color:var(--muted);font-size:13px;line-height:1.6}
+.field{margin-bottom:14px}.field label{display:block;font-size:11px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:#8b859b;margin-bottom:7px}
+.field input{width:100%;border:1px solid var(--line);background:#fbfaff;border-radius:12px;padding:13px 14px;font-size:14px;outline:0;transition:.15s}
+.field input:focus{border-color:#b6a7f5;background:#fff;box-shadow:0 0 0 4px #7657e81a}
+.login-card .primary{width:100%;margin-top:6px}
+.login-error{display:none;background:#fdeef1;color:#c14663;border-radius:11px;padding:11px 13px;font-size:12px;font-weight:700;margin-bottom:14px}
+.login-error.show{display:block}
+.hint{margin-top:18px;padding:12px 14px;border:1px dashed #ded6f6;border-radius:12px;background:#fbf9ff;font-size:11.5px;color:#7a7291;line-height:1.6}.hint b{color:#6041d4}
+/* ---------- SHELL ---------- */
+.app{display:none;min-height:100vh;grid-template-columns:246px 1fr}
+.app.ready{display:grid}
+.side{background:var(--dark);color:#fff;padding:24px 18px;display:flex;flex-direction:column;gap:26px;position:sticky;top:0;height:100vh}
+.side .logo{font-family:'Plus Jakarta Sans';font-size:20px;font-weight:800;letter-spacing:-.8px;padding:0 8px}.side .logo span{color:#b9a7ff}.side .logo small{display:block;font:600 8.5px 'DM Sans';letter-spacing:2.4px;color:#8f88a8;margin-top:-1px}
+.menu{display:flex;flex-direction:column;gap:5px}
+.menu button{display:flex;align-items:center;gap:11px;background:transparent;color:#c3bdd6;text-align:left;padding:12px 13px;border-radius:12px;font-size:13px;font-weight:700;width:100%}
+.menu button i{font-style:normal;font-size:15px}.menu button:hover{background:#332a4d;color:#fff}.menu button.active{background:var(--purple);color:#fff;box-shadow:0 8px 20px #7657e84d}
+.side-foot{margin-top:auto;border-top:1px solid #3b3157;padding-top:16px;display:flex;flex-direction:column;gap:10px}
+.side-foot a{font-size:12px;color:#c3bdd6;text-decoration:none;padding:0 8px}.side-foot a:hover{color:#fff}
+.side-foot .ghost{background:#372e52;color:#e6e1f5}.side-foot .ghost:hover{background:#443a63}
+.side-user{display:flex;align-items:center;gap:10px;padding:0 4px 4px}.avatar{width:36px;height:36px;border-radius:11px;background:#4a3d73;display:grid;place-items:center;font-size:15px;font-weight:800;color:#e5ddff}
+.side-user b{display:block;font-size:12px}.side-user small{color:#9a93b3;font-size:10px}
+.main{padding:26px 30px 46px;min-width:0}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:24px}
+.topbar h1{font:800 26px 'Plus Jakarta Sans';letter-spacing:-.9px;margin:0}.topbar p{margin:5px 0 0;color:var(--muted);font-size:12.5px}
+.topbar .right{display:flex;align-items:center;gap:10px}
+.pill{background:#fff;border:1px solid var(--line);border-radius:30px;padding:9px 14px;font-size:11.5px;font-weight:700;color:#6c6582}
+.panel{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.panel-head h2{font:800 17px 'Plus Jakarta Sans';margin:0;letter-spacing:-.4px}.panel-head p{margin:4px 0 0;color:var(--muted);font-size:11.5px}
+.hidden{display:none!important}
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:18px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px 18px 16px}
+.stat .ico{width:38px;height:38px;border-radius:12px;background:#f3efff;color:var(--purple);display:grid;place-items:center;font-size:17px;margin-bottom:12px}
+.stat span{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#9b94ad}
+.stat b{display:block;font:800 22px 'Plus Jakarta Sans';letter-spacing:-.7px;margin:6px 0 3px}
+.stat small{font-size:10.5px;color:#a09aad}
+.grid2{display:grid;grid-template-columns:1.35fr 1fr;gap:18px;margin-bottom:18px}
+/* table */
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#9b94ad;font-weight:800;padding:0 12px 11px;white-space:nowrap;border-bottom:1px solid var(--line)}
+td{padding:13px 12px;border-bottom:1px solid #f5f2fb;vertical-align:middle}
+tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right;white-space:nowrap}
+.thumb{width:44px;height:44px;border-radius:11px;object-fit:cover;background:#f3efff}
+.pname{font-weight:700;font-size:12.5px;display:block}.psub{color:#9b94ad;font-size:10.5px}
+.rowacts{display:flex;gap:6px;justify-content:flex-end}
+.badge{display:inline-block;border-radius:30px;padding:5px 10px;font-size:10px;font-weight:800;white-space:nowrap}
+.badge.cat{background:#f3efff;color:#6344d6}
+.badge.baru{background:#eef2ff;color:#4c5bd4}.badge.diproses{background:#fff5e4;color:#b3781a}.badge.dikirim{background:#e8f5ff;color:#2277b8}.badge.selesai{background:#e7f7ef;color:#1e8a60}
+select.status{border:1px solid var(--line);border-radius:9px;padding:7px 9px;font-size:11.5px;background:#fbfaff;outline:0}
+/* category bars */
+.bars{display:flex;flex-direction:column;gap:14px}
+.bar-row b{font-size:12px;display:flex;justify-content:space-between;margin-bottom:6px;font-weight:700}.bar-row b span{color:#9b94ad;font-weight:700}
+.track{height:9px;background:#f4f1fb;border-radius:20px;overflow:hidden}.fill{height:100%;border-radius:20px;background:linear-gradient(90deg,#8f74f2,#ff9dc5)}
+.empty-state{text-align:center;color:#9993a8;font-size:12.5px;padding:30px 10px;line-height:1.7}
+/* modal */
+.modal{display:none;position:fixed;inset:0;background:#211a36a6;z-index:60;padding:24px;overflow:auto}
+.modal.show{display:grid;place-items:center}
+.modal-card{background:#fff;border-radius:22px;width:min(520px,100%);padding:26px;box-shadow:var(--shadow)}
+.modal-card h2{font:800 19px 'Plus Jakarta Sans';margin:0 0 4px}.modal-card p.sub{margin:0 0 20px;color:var(--muted);font-size:12px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-grid .full{grid-column:1/-1}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,20px);opacity:0;background:#29223f;color:#fff;padding:12px 18px;border-radius:12px;font-size:12px;z-index:80;transition:.25s}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:1020px){.stats{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}}
+@media(max-width:760px){.app.ready{grid-template-columns:1fr}.side{position:static;height:auto;flex-direction:row;align-items:center;overflow-x:auto;padding:14px;gap:14px}.side .logo{display:none}.menu{flex-direction:row;gap:6px}.menu button{white-space:nowrap;padding:10px 12px}.side-foot{margin:0;border:0;padding:0;flex-direction:row;align-items:center}.side-user{display:none}.main{padding:20px 16px 40px}.form-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<section class="login" id="loginView">
+  <div class="login-card">
+    <div class="logo">Gadget<span>Ku.</span><small>ADMIN PANEL</small></div>
+    <h1>Masuk ke dashboard</h1>
+    <p class="sub">Kelola produk, pantau pesanan, dan lihat ringkasan penjualan toko.</p>
+    <div class="login-error" id="loginError">Username atau password salah. Coba lagi.</div>
+    <form id="loginForm" autocomplete="off">
+      <div class="field"><label for="username">Username</label><input id="username" name="username" placeholder="Masukkan username" autocomplete="username" required></div>
+      <div class="field"><label for="password">Password</label><input id="password" name="password" type="password" placeholder="Masukkan password" autocomplete="current-password" required></div>
+      <button class="primary" type="submit">Masuk dashboard →</button>
+    </form>
+    <div class="hint">Demo login — username: <b>admin</b> · password: <b>admin</b></div>
+    <p style="margin:16px 0 0;font-size:11.5px"><a href="index.html" style="color:#817e95;text-decoration:none">← Kembali ke toko</a></p>
+  </div>
+</section>
+
+<!-- ============ DASHBOARD ============ -->
+<div class="app" id="appView">
+  <aside class="side">
+    <div class="logo">Gadget<span>Ku.</span><small>ADMIN PANEL</small></div>
+    <nav class="menu">
+      <button class="active" data-view="ringkasan" onclick="showView('ringkasan')"><i>▤</i> Ringkasan</button>
+      <button data-view="produk" onclick="showView('produk')"><i>▦</i> Produk</button>
+      <button data-view="pesanan" onclick="showView('pesanan')"><i>🧾</i> Pesanan</button>
+    </nav>
+    <div class="side-foot">
+      <div class="side-user"><div class="avatar">A</div><div><b>Administrator</b><small>admin</small></div></div>
+      <a href="index.html">↗ Lihat toko</a>
+      <button class="ghost" onclick="logout()">Keluar</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div><h1 id="viewTitle">Ringkasan</h1><p id="viewSub">Pantau performa toko GadgetKu hari ini.</p></div>
+      <div class="right"><span class="pill" id="todayPill"></span><button class="primary" id="topAction" onclick="openProductModal()">+ Tambah produk</button></div>
+    </div>
+
+    <!-- RINGKASAN -->
+    <section id="view-ringkasan">
+      <div class="stats">
+        <div class="stat"><div class="ico">▦</div><span>Total produk</span><b id="statProducts">0</b><small id="statProductsSub">—</small></div>
+        <div class="stat"><div class="ico">🧾</div><span>Total pesanan</span><b id="statOrders">0</b><small id="statOrdersSub">—</small></div>
+        <div class="stat"><div class="ico">💰</div><span>Pendapatan</span><b id="statRevenue">Rp0</b><small>Dari seluruh pesanan</small></div>
+        <div class="stat"><div class="ico">📈</div><span>Rata-rata pesanan</span><b id="statAvg">Rp0</b><small>Nilai rata-rata per pesanan</small></div>
+      </div>
+      <div class="grid2">
+        <div class="panel">
+          <div class="panel-head"><div><h2>Pesanan terbaru</h2><p>5 transaksi terakhir dari halaman toko.</p></div><button class="ghost" onclick="showView('pesanan')">Semua pesanan →</button></div>
+          <div class="tablewrap"><table><thead><tr><th>ID</th><th>Item</th><th class="num">Total</th><th>Status</th></tr></thead><tbody id="recentOrders"></tbody></table></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div><h2>Produk per kategori</h2><p>Sebaran katalog yang sedang tayang.</p></div></div>
+          <div class="bars" id="categoryBars"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRODUK -->
+    <section id="view-produk" class="hidden">
+      <div class="panel">
+        <div class="panel-head">
+          <div><h2>Daftar produk</h2><p>Perubahan langsung tampil di halaman toko.</p></div>
+          <button class="primary" onclick="openProductModal()">+ Tambah produk</button>
+        </div>
+        <div class="tablewrap"><table><thead><tr><th>Produk</th><th>Kategori</th><th class="num">Harga</th><th class="num">Harga lama</th><th>Label</th><th class="num">Aksi</th></tr></thead><tbody id="productRows"></tbody></table></div>
+      </div>
+    </section>
+
+    <!-- PESANAN -->
+    <section id="view-pesanan" class="hidden">
+      <div class="panel">
+        <div class="panel-head"><div><h2>Semua pesanan</h2><p>Pesanan dibuat dari halaman checkout toko.</p></div><span class="pill" id="orderCountPill">0 pesanan</span></div>
+        <div class="tablewrap"><table><thead><tr><th>ID</th><th>Tanggal</th><th>Item</th><th class="num">Total</th><th>Status</th></tr></thead><tbody id="orderRows"></tbody></table></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- modal produk -->
+<div class="modal" id="productModal" onclick="if(event.target===this)closeProductModal()">
+  <div class="modal-card">
+    <h2 id="modalTitle">Tambah produk</h2>
+    <p class="sub">Lengkapi data produk untuk ditampilkan di katalog toko.</p>
+    <form id="productForm">
+      <input type="hidden" id="pId">
+      <div class="form-grid">
+        <div class="field full"><label for="pName">Nama produk</label><input id="pName" required placeholder="Contoh: Case Hologram Aurora"></div>
+        <div class="field"><label for="pCat">Kategori</label>
+          <select id="pCat" required style="width:100%;border:1px solid var(--line);background:#fbfaff;border-radius:12px;padding:13px 14px;font-size:14px;outline:0">
+            <option>Case HP</option><option>Audio</option><option>Daya</option><option>Aksesori</option><option>Wearable</option><option>Gaming</option>
+          </select></div>
+        <div class="field"><label for="pTag">Label promo</label><input id="pTag" placeholder="NEW / BEST SELLER"></div>
+        <div class="field"><label for="pPrice">Harga (Rp)</label><input id="pPrice" type="number" min="0" step="1000" required placeholder="59000"></div>
+        <div class="field"><label for="pOld">Harga lama (Rp)</label><input id="pOld" type="number" min="0" step="1000" placeholder="79000"></div>
+        <div class="field"><label for="pRating">Rating</label><input id="pRating" type="number" min="0" max="5" step="0.1" value="4.8"></div>
+        <div class="field"><label for="pReviews">Jumlah ulasan</label><input id="pReviews" type="number" min="0" step="1" value="0"></div>
+        <div class="field full"><label for="pImg">URL gambar</label><input id="pImg" placeholder="https://images.unsplash.com/..."></div>
+      </div>
+      <div class="modal-actions"><button type="button" class="ghost" onclick="closeProductModal()">Batal</button><button type="submit" class="primary">Simpan produk</button></div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast">Tersimpan</div>
+
+<script>
+const LS_PRODUCTS='gadgetku_products',LS_ORDERS='gadgetku_orders',SS_ADMIN='gadgetku_admin';
+const ADMIN_USER='admin',ADMIN_PASS='admin';
+const DEFAULT_PRODUCTS=[
+{id:1,name:'Case Hologram Aurora',cat:'Case HP',price:59000,old:79000,tag:'BEST SELLER',rating:'4.9',reviews:128,img:'https://images.unsplash.com/photo-1603313011108-3f4f9f7f6f8b?auto=format&fit=crop&w=700&q=85'},
+{id:2,name:'Case Clear Minimalist',cat:'Case HP',price:45000,old:60000,tag:'NEW',rating:'4.8',reviews:86,img:'https://images.unsplash.com/photo-1605236453806-6ff36851218e?auto=format&fit=crop&w=700&q=85'},
+{id:3,name:'Wireless Earbuds',cat:'Audio',price:129000,old:159000,tag:'POPULAR',rating:'4.9',reviews:204,img:'https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?auto=format&fit=crop&w=700&q=85'},
+{id:4,name:'Headphone Soft Tone',cat:'Audio',price:189000,old:229000,tag:'SALE',rating:'4.8',reviews:75,img:'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=700&q=85'},
+{id:5,name:'Power Bank Slim 10.000 mAh',cat:'Daya',price:159000,old:199000,tag:'HEMAT',rating:'4.9',reviews:163,img:'https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?auto=format&fit=crop&w=700&q=85'},
+{id:6,name:'Fast Charging Adapter',cat:'Daya',price:79000,old:99000,tag:'FAVORIT',rating:'4.7',reviews:92,img:'https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=700&q=85'},
+{id:7,name:'Phone Stand Adjustable',cat:'Aksesori',price:39000,old:55000,tag:'PRAKTIS',rating:'4.8',reviews:111,img:'https://images.unsplash.com/photo-1586953208448-b95a79798f07?auto=format&fit=crop&w=700&q=85'},
+{id:8,name:'Kabel Data Fast Charge',cat:'Aksesori',price:29000,old:39000,tag:'VALUE',rating:'4.8',reviews:147,img:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=700&q=85'},
+{id:9,name:'Case Floral Pastel',cat:'Case HP',price:55000,old:70000,tag:'NEW',rating:'4.9',reviews:64,img:'https://images.unsplash.com/photo-1541877944-ac82a091518a?auto=format&fit=crop&w=700&q=85'},
+{id:10,name:'Case Shockproof Matte',cat:'Case HP',price:49000,old:65000,tag:'PROTECTION',rating:'4.8',reviews:91,img:'https://images.unsplash.com/photo-1601593346740-925612772716?auto=format&fit=crop&w=700&q=85'},
+{id:11,name:'Bluetooth Speaker Mini',cat:'Audio',price:119000,old:149000,tag:'TRENDING',rating:'4.8',reviews:118,img:'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?auto=format&fit=crop&w=700&q=85'},
+{id:12,name:'Headset Gaming RGB',cat:'Audio',price:219000,old:269000,tag:'GAMER PICK',rating:'4.9',reviews:73,img:'https://images.unsplash.com/photo-1599669454699-248893623440?auto=format&fit=crop&w=700&q=85'},
+{id:13,name:'Charger Wireless',cat:'Daya',price:99000,old:129000,tag:'PRAKTIS',rating:'4.7',reviews:58,img:'https://images.unsplash.com/photo-1591290619762-c5886b5a7a2b?auto=format&fit=crop&w=700&q=85'},
+{id:14,name:'Car Charger Dual USB',cat:'Daya',price:49000,old:65000,tag:'TRAVEL',rating:'4.8',reviews:42,img:'https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?auto=format&fit=crop&w=700&q=85'},
+{id:15,name:'Phone Holder Meja',cat:'Aksesori',price:35000,old:49000,tag:'USEFUL',rating:'4.8',reviews:87,img:'https://images.unsplash.com/photo-1612444530582-fc66183b16f7?auto=format&fit=crop&w=700&q=85'},
+{id:16,name:'Ring Light Selfie',cat:'Aksesori',price:69000,old:89000,tag:'CONTENT CREATOR',rating:'4.7',reviews:69,img:'https://images.unsplash.com/photo-1616423640778-28d1b53229bd?auto=format&fit=crop&w=700&q=85'},
+{id:17,name:'Smartwatch Sport',cat:'Wearable',price:249000,old:299000,tag:'BEST SELLER',rating:'4.9',reviews:132,img:'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=700&q=85'},
+{id:18,name:'Smart Band Minimal',cat:'Wearable',price:179000,old:219000,tag:'LIGHTWEIGHT',rating:'4.8',reviews:77,img:'https://images.unsplash.com/photo-1544117519-31a4b719223d?auto=format&fit=crop&w=700&q=85'},
+{id:19,name:'Game Controller Wireless',cat:'Gaming',price:199000,old:249000,tag:'GAMER PICK',rating:'4.8',reviews:95,img:'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?auto=format&fit=crop&w=700&q=85'},
+{id:20,name:'Mouse Wireless RGB',cat:'Gaming',price:89000,old:119000,tag:'SMOOTH CLICK',rating:'4.7',reviews:61,img:'https://images.unsplash.com/photo-1527814050087-3793815479db?auto=format&fit=crop&w=700&q=85'}
+];
+const rupiah=n=>'Rp'+Number(n||0).toLocaleString('id-ID');
+const STATUSES=['Baru','Diproses','Dikirim','Selesai'];
+
+function getProducts(){try{const s=JSON.parse(localStorage.getItem(LS_PRODUCTS));return Array.isArray(s)?s:DEFAULT_PRODUCTS.slice()}catch(e){return DEFAULT_PRODUCTS.slice()}}
+function saveProducts(list){localStorage.setItem(LS_PRODUCTS,JSON.stringify(list))}
+function getOrders(){try{const s=JSON.parse(localStorage.getItem(LS_ORDERS));return Array.isArray(s)?s:[]}catch(e){return []}}
+function saveOrders(list){localStorage.setItem(LS_ORDERS,JSON.stringify(list))}
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove('show'),2200)}
+
+/* ---------- auth ---------- */
+const loginView=document.getElementById('loginView'),appView=document.getElementById('appView');
+document.getElementById('loginForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const u=document.getElementById('username').value.trim();
+  const p=document.getElementById('password').value;
+  if(u===ADMIN_USER&&p===ADMIN_PASS){
+    sessionStorage.setItem(SS_ADMIN,'1');
+    document.getElementById('loginError').classList.remove('show');
+    document.getElementById('password').value='';
+    enterDashboard();
+  }else{
+    document.getElementById('loginError').classList.add('show');
+    document.getElementById('password').select();
+  }
+});
+function enterDashboard(){
+  loginView.style.display='none';
+  appView.classList.add('ready');
+  refreshAll();
+}
+function logout(){
+  sessionStorage.removeItem(SS_ADMIN);
+  appView.classList.remove('ready');
+  loginView.style.display='grid';
+  document.getElementById('username').value='';
+  document.getElementById('password').value='';
+  document.getElementById('loginError').classList.remove('show');
+}
+
+/* ---------- views ---------- */
+const VIEW_META={
+  ringkasan:{title:'Ringkasan',sub:'Pantau performa toko GadgetKu hari ini.',action:true},
+  produk:{title:'Produk',sub:'Kelola katalog aksesori yang tampil di toko.',action:true},
+  pesanan:{title:'Pesanan',sub:'Pantau dan perbarui status pesanan masuk.',action:false}
+};
+function showView(name){
+  Object.keys(VIEW_META).forEach(k=>document.getElementById('view-'+k).classList.toggle('hidden',k!==name));
+  document.querySelectorAll('.menu button').forEach(b=>b.classList.toggle('active',b.dataset.view===name));
+  const meta=VIEW_META[name];
+  document.getElementById('viewTitle').textContent=meta.title;
+  document.getElementById('viewSub').textContent=meta.sub;
+  document.getElementById('topAction').classList.toggle('hidden',!meta.action);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ---------- render ---------- */
+function refreshAll(){renderStats();renderRecent();renderBars();renderProducts();renderOrders();}
+function renderStats(){
+  const products=getProducts(),orders=getOrders();
+  const revenue=orders.reduce((s,o)=>s+(o.total||0),0);
+  document.getElementById('statProducts').textContent=products.length;
+  const cats=[...new Set(products.map(p=>p.cat))].length;
+  document.getElementById('statProductsSub').textContent=cats+' kategori aktif';
+  document.getElementById('statOrders').textContent=orders.length;
+  const baru=orders.filter(o=>o.status==='Baru').length;
+  document.getElementById('statOrdersSub').textContent=baru+' pesanan baru';
+  document.getElementById('statRevenue').textContent=rupiah(revenue);
+  document.getElementById('statAvg').textContent=rupiah(orders.length?Math.round(revenue/orders.length):0);
+  document.getElementById('orderCountPill').textContent=orders.length+' pesanan';
+  document.getElementById('todayPill').textContent='📅 '+new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+function renderRecent(){
+  const orders=getOrders().slice(0,5);
+  document.getElementById('recentOrders').innerHTML=orders.length?orders.map(o=>`<tr><td><b>${o.id}</b></td><td>${(o.items||[]).reduce((s,i)=>s+i.qty,0)} item</td><td class="num">${rupiah(o.total)}</td><td><span class="badge ${(o.status||'Baru').toLowerCase()}">${o.status||'Baru'}</span></td></tr>`).join(''):'<tr><td colspan="4"><div class="empty-state">Belum ada pesanan.<br>Buat pesanan lewat halaman toko untuk melihat datanya di sini.</div></td></tr>';
+}
+function renderBars(){
+  const products=getProducts();
+  const counts={};products.forEach(p=>counts[p.cat]=(counts[p.cat]||0)+1);
+  const max=Math.max(1,...Object.values(counts));
+  const entries=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('categoryBars').innerHTML=entries.length?entries.map(([cat,n])=>`<div class="bar-row"><b>${cat}<span>${n} produk</span></b><div class="track"><div class="fill" style="width:${Math.round(n/max*100)}%"></div></div></div>`).join(''):'<div class="empty-state">Belum ada produk.</div>';
+}
+function renderProducts(){
+  const products=getProducts();
+  document.getElementById('productRows').innerHTML=products.length?products.map(p=>`<tr><td><div style="display:flex;align-items:center;gap:11px"><img class="thumb" src="${p.img||''}" alt="" onerror="this.src='https://placehold.co/120x120/f2edff/7657e8?text=GK'"><div><span class="pname">${p.name}</span><span class="psub">★ ${p.rating||'-'} · ${p.reviews||0} ulasan</span></div></div></td><td><span class="badge cat">${p.cat}</span></td><td class="num"><b>${rupiah(p.price)}</b></td><td class="num" style="color:#aaa;text-decoration:line-through">${p.old?rupiah(p.old):'—'}</td><td>${p.tag?`<span class="badge cat">${p.tag}</span>`:'—'}</td><td><div class="rowacts"><button class="ghost" onclick="editProduct(${p.id})">Edit</button><button class="danger" onclick="deleteProduct(${p.id})">Hapus</button></div></td></tr>`).join(''):'<tr><td colspan="6"><div class="empty-state">Belum ada produk. Klik “Tambah produk” untuk mulai.</div></td></tr>';
+}
+function renderOrders(){
+  const orders=getOrders();
+  document.getElementById('orderRows').innerHTML=orders.length?orders.map(o=>`<tr><td><b>${o.id}</b></td><td>${new Date(o.date).toLocaleString('id-ID',{dateStyle:'medium',timeStyle:'short'})}</td><td>${(o.items||[]).map(i=>`${i.name} ×${i.qty}`).join('<br>')}</td><td class="num"><b>${rupiah(o.total)}</b></td><td><select class="status" onchange="updateStatus('${o.id}',this.value)">${STATUSES.map(s=>`<option${(o.status||'Baru')===s?' selected':''}>${s}</option>`).join('')}</select></td></tr>`).join(''):'<tr><td colspan="5"><div class="empty-state">Belum ada pesanan masuk.<br>Checkout dari halaman toko akan muncul di sini.</div></td></tr>';
+}
+function updateStatus(id,status){
+  const orders=getOrders();const o=orders.find(x=>x.id===id);if(!o)return;
+  o.status=status;saveOrders(orders);renderStats();renderRecent();toast('Status '+id+' → '+status);
+}
+
+/* ---------- produk CRUD ---------- */
+const modal=document.getElementById('productModal');
+function openProductModal(){
+  document.getElementById('modalTitle').textContent='Tambah produk';
+  document.getElementById('productForm').reset();
+  document.getElementById('pId').value='';
+  document.getElementById('pRating').value='4.8';
+  document.getElementById('pReviews').value='0';
+  modal.classList.add('show');
+  setTimeout(()=>document.getElementById('pName').focus(),60);
+}
+function editProduct(id){
+  const p=getProducts().find(x=>x.id===id);if(!p)return;
+  document.getElementById('modalTitle').textContent='Edit produk';
+  document.getElementById('pId').value=p.id;
+  document.getElementById('pName').value=p.name;
+  document.getElementById('pCat').value=p.cat;
+  document.getElementById('pTag').value=p.tag||'';
+  document.getElementById('pPrice').value=p.price;
+  document.getElementById('pOld').value=p.old||'';
+  document.getElementById('pRating').value=p.rating||'4.8';
+  document.getElementById('pReviews').value=p.reviews||0;
+  document.getElementById('pImg').value=p.img||'';
+  modal.classList.add('show');
+}
+function closeProductModal(){modal.classList.remove('show')}
+document.getElementById('productForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const products=getProducts();
+  const id=document.getElementById('pId').value;
+  const data={
+    name:document.getElementById('pName').value.trim(),
+    cat:document.getElementById('pCat').value,
+    tag:document.getElementById('pTag').value.trim().toUpperCase(),
+    price:Number(document.getElementById('pPrice').value)||0,
+    old:Number(document.getElementById('pOld').value)||0,
+    rating:document.getElementById('pRating').value||'4.8',
+    reviews:Number(document.getElementById('pReviews').value)||0,
+    img:document.getElementById('pImg').value.trim()||'https://placehold.co/600x600/f2edff/7657e8?text=GadgetKu+Store'
+  };
+  if(id){
+    const i=products.findIndex(p=>p.id==id);
+    products[i]={...products[i],...data};
+    toast('Produk diperbarui');
+  }else{
+    const newId=products.reduce((m,p)=>Math.max(m,p.id),0)+1;
+    products.unshift({id:newId,...data});
+    toast('Produk ditambahkan');
+  }
+  saveProducts(products);
+  closeProductModal();refreshAll();
+});
+function deleteProduct(id){
+  const products=getProducts().find(p=>p.id===id);
+  if(!products)return;
+  if(!confirm('Hapus produk "'+products.name+'"? Tindakan ini tidak bisa dibatalkan.'))return;
+  saveProducts(getProducts().filter(p=>p.id!==id));
+  refreshAll();toast('Produk dihapus');
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeProductModal()});
+
+/* ---------- boot ---------- */
+(function boot(){
+  const existing=localStorage.getItem(LS_PRODUCTS);
+  if(!existing)localStorage.setItem(LS_PRODUCTS,JSON.stringify(DEFAULT_PRODUCTS));
+  if(sessionStorage.getItem(SS_ADMIN)==='1'){
+    enterDashboard();
+  }else{
+    loginView.style.display='grid';
+    document.getElementById('username').focus();
+  }
+})();
+</script>
+</body></html>
